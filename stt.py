@@ -140,6 +140,7 @@ def main():
     
     parser.add_argument('--url', help='URL of the YouTube video to download', default=None)
     parser.add_argument('--video_path', help='Path of an existing video', default=None)
+    parser.add_argument('--whipser_model', help='Whisper Model Type', default="base")
     parser.add_argument('--srt_output_path', help='Path to save the transcribed SRT file', default="SrtFiles/Translated.srt")
     parser.add_argument('--src_lang', help='Source language for translation', default='en')
     parser.add_argument('--target_lang', help='Target language for translation', default='zh-cn')
@@ -160,7 +161,7 @@ def main():
         print("Either --url or --video_path should be specified, not both.")
         return
     
-    srt_filename = transcribe_audio(video_path, args.srt_output_path, lang=args.src_lang)
+    srt_filename = transcribe_audio(video_path, args.srt_output_path, lang=args.src_lang, whisper_model = args.whishper_model)
     print(f"SRT file created at {srt_filename}")
 
     translated_srt_filename = translate_srt(srt_filename, args.src_lang, args.target_lang)
