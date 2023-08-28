@@ -125,12 +125,25 @@ def embed_subtitles_ffmpeg(video_path, srt_path):
         "-i", video_path,
         "-vf", f"subtitles={srt_path}",
         "-c:v", "libx264",
-        "-c:a", "copy",
-        "-strict", "experimental",
+        "-c:a", "aac",
         output_path
     ]
-    subprocess.run(cmd)
+    
+    print("Running command: " + ' '.join(cmd))
+    
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    
+    print("Standard Output:")
+    print(result.stdout)
+    
+    print("Standard Error:")
+    print(result.stderr)
+    
+    if result.returncode != 0:
+        print("FFmpeg failed with error code:", result.returncode)
+    
     return output_path
+
 
 
 
