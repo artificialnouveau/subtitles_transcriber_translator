@@ -8,7 +8,7 @@ import yt_dlp
 from tqdm import tqdm
 import subprocess
 from googletrans import Translator, LANGUAGES
-
+import argparse
 
 # Download the YouTube video as a video + audio
 def download_youtube_video_yt_dlp(url, save_path):
@@ -136,20 +136,34 @@ def embed_subtitles_ffmpeg(video_path, srt_path):
 
 # Main function
 def main():
+    parser = argparse.ArgumentParser(description="Video Transcription and Translation Tool")
+    
+    parser.add_argument('--url', help='URL of the YouTube video to download', default=None)
+    parser.add_argument('--video_path', help='Path of an existing video', default=None)
+    parser.add_argument('--srt_output_path', help='Path to save the transcribed SRT file', default="SrtFiles/Translated.srt")
+    parser.add_argument('--src_lang', help='Source language for translation', default='en')
+    parser.add_argument('--target_lang', help='Target language for translation', default='zh-cn')
+
+    args = parser.parse_args()
+
     if not os.path.exists("SrtFiles"):
         os.makedirs("SrtFiles")
     if not os.path.exists("DownloadedVideos"):
         os.makedirs("DownloadedVideos")
 
-    #if you prefer to download your video from youtube, then download the video here, if not, comment it out. 
-    url = "https://www.youtube.com/watch?v=954nTD-heG4"
-    video_path = download_youtube_video_yt_dlp(url, "DownloadedVideos")
-    print(f"Video downloaded at {video_path}")
-
-    srt_filename = transcribe_audio(video_path, "SrtFiles/Translated.srt", lang='en')
+    if args.url and not args.video_path:
+        video_path = download_youtube_video_yt_dlp(args.url, "DownloadedVideos")
+        print(f"Video downloaded at {video_path}")
+    elif args.video_path and not args.url:
+        video_path = args.video_path
+    else:
+        print("Either --url or --video_path should be specified, not both.")
+        return
+    
+    srt_filename = transcribe_audio(video_path, args.srt_output_path, lang=args.src_lang)
     print(f"SRT file created at {srt_filename}")
 
-    translated_srt_filename = translate_srt(srt_filename)
+    translated_srt_filename = translate_srt(srt_filename, args.src_lang, args.target_lang)
     print(f"Translated SRT file created at {translated_srt_filename}")
 
     # Convert WebM to MP4 if needed
